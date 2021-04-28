@@ -13,7 +13,7 @@ import styles from './style'
 import date from '../../assets/icons/date.png'
 import time from '../../assets/icons/time.png'
 
-export default function DateTimeInputAndoid({ type, save }) {
+export default function DateTimeInputAndoid({ type, save, date, hour }) {
     const [dateTime, setDateTime] = useState();
     const [show, setShow] = useState(false);
     const [mode, setMode] = useState('date');
@@ -43,6 +43,16 @@ export default function DateTimeInputAndoid({ type, save }) {
         }
     }
 
+    useEffect(() => {
+        if (type === 'date' && date) {
+            setDateTime(format(new Date(date), 'dd/MM/yyyy'));
+
+        }
+        if (type === 'hour' && hour) {
+            setDateTime(format(new Date(hour), 'HH:mm'));
+
+        }
+    }, [])
     return (
         <TouchableOpacity onPress={selectDataOrHour}>
             <TextInput

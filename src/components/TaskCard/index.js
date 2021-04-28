@@ -6,9 +6,9 @@ import { format } from 'date-fns'
 
 import typeIcons from '../../utils/typeIcons'
 
-export default function TaskCard({title, when, type}){
+export default function TaskCard({title, when, type, onPress}){
     return (
-        <TouchableOpacity style={styles.card}>
+        <TouchableOpacity style={styles.card} onPress={onPress}>
             <View  style={styles.cardLeft}>
                 <Image source={typeIcons[type]} style={styles.typeActive}/>
                 <Text style={styles.cardTitle}>{title}</Text>

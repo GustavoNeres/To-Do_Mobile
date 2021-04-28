@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator } from 'react-native'
+import { View, Text, TouchableOpacity, ScrollView, ActivityIndicator, Alert } from 'react-native'
 import styles from './style'
 
 import taskService from '../../services/taskService'
@@ -7,47 +7,52 @@ import taskService from '../../services/taskService'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import TaskCard from '../../components/TaskCard'
-import * as Network from 'expo-network';
+
 export default function Home({ navigation }) {
     const [filter, setFilter] = useState('today');
     const [tasks, setTasks] = useState([]);
     const [load, setLoad] = useState(false)
     const [lateCount, setLateCount] = useState()
-    const [macaddress, setMacaddress] = useState()
+    const [ip, setIp] = useState()
 
     async function loadTask() {
         setLoad(true)
-        getMacAddress()
-        const task = await taskService.loadTask(filter, macaddress )
+        getIp()
+        const task = await taskService.loadTask(filter, ip)
         setTasks(task.data)
         setLoad(false)
     }
     async function lateVerify() {
         setLoad(true)
-        await getMacAddress()
-        const taskLate = await taskService.loadTaskLate(macaddress)
+   
+        await getIp()
+        const taskLate = await taskService.loadTaskLate(ip)
         setLateCount(taskLate.data.length)
         setLoad(false)
     }
 
-    function notificantion(){
+    function notificantion() {
         setFilter('late')
     }
 
-    function routeNav(){
+    function routeNav() {
         navigation.navigate("Task");
     }
-     async function getMacAddress(){
-        const mac = await Network.getMacAddressAsync();
-        setMacaddress(mac)
-     }
+    function show(id) {
+        navigation.navigate("Task", { idTask: id });
+    }
+    async function getIp() {
+        const ip = await taskService.getIp()
+        setIp(ip)
+    }
     useEffect(() => {
         lateVerify();
-        loadTask()
+        loadTask();
+      
     }, [filter])
     return (
         <View style={styles.container}>
-            <Header showNotification={true} showBack={false} pressNotification={notificantion} late={lateCount} />
+            <Header showNotification={true} showBack={false} navigation={navigation}  pressNotification={notificantion} late={lateCount} />
 
             <View style={styles.filter}>
                 <TouchableOpacity onPress={() => setFilter('all')}>
@@ -72,18 +77,18 @@ export default function Home({ navigation }) {
             </View>
 
             <ScrollView style={styles.content} contentContainerStyle={{ alignItems: 'center' }}>
-                { load ?
+                {load ?
 
-                    <ActivityIndicator color='#AB47BC' size={50}/>
+                    <ActivityIndicator color='#AB47BC' size={50} />
                     :
-                
+
                     tasks.map(t => (
-                        <TaskCard title={t.title} when={t.when} type={t.type} />
-                        ))
-                    
+                        <TaskCard title={t.title} when={t.when} type={t.type} onPress={() => show(t._id)} />
+                    ))
+
                 }
             </ScrollView>
-            <Footer  icon={'add'} onPress={routeNav} />
+            <Footer icon={'add'} onPress={routeNav} />
         </View>
     )
 }
